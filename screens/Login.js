@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import {
   SafeAreaView,
   Text,
@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import jwt_decode from "jwt-decode";
+import { AuthDispatchContext } from "../AuthProvider";
 import styles from "./styles";
 import config from "../config";
 
@@ -15,9 +16,12 @@ export const Login = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const { setIsLoggedIn, setRoles } = useContext(AuthDispatchContext);
+
   const storeRoles = async (key, value) => {
     try {
       await AsyncStorage.setItem(key, value);
+      setRoles(value);
     } catch (e) {
       console.log(e);
     }
@@ -29,7 +33,7 @@ export const Login = ({ navigation }) => {
       Alert.alert("Giriş Başarılı!", "Ürün listesine yönlendiriliyorsunuz.", [
         {
           text: "Tamam",
-          onPress: () => navigation.navigate("Ürün Listesi"),
+          onPress: () => setIsLoggedIn(true),
         },
       ]);
     } catch (e) {
@@ -53,6 +57,7 @@ export const Login = ({ navigation }) => {
       })
         .then((response) => response.json())
         .then((data) => {
+          console.log("r", data);
           if (data.status === 401) {
             Alert.alert("Hata!", "Girdiğiniz bilgileri kontrol edin", [
               { text: "Tamam", onPress: () => console.log("OK Pressed") },
@@ -73,6 +78,10 @@ export const Login = ({ navigation }) => {
         .catch((error) => {
           console.error("Error:", error);
         });
+    } else {
+      Alert.alert("Hata!", "Eksik bilgi girdiniz", [
+        { text: "Tamam", onPress: () => console.log("OK Pressed") },
+      ]);
     }
   };
 
