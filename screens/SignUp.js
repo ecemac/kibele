@@ -58,7 +58,12 @@ export const SignUp = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <Text>Email:</Text>
-      <TextInput style={styles.input} value={email} onChangeText={setEmail} />
+      <TextInput
+        style={styles.input}
+        value={email}
+        onChangeText={setEmail}
+        autoCapitalize="none"
+      />
       <Text>Şifre:</Text>
       <TextInput
         style={styles.input}

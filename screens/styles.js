@@ -68,6 +68,13 @@ const styles = StyleSheet.create({
     borderColor: "#CACACA",
     borderRadius: 3,
   },
+  flexView: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+  },
+  body: {
+    paddingHorizontal: 15,
+  },
 });
 
 export default styles;

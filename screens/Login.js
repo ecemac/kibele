@@ -67,9 +67,11 @@ export const Login = ({ navigation }) => {
 
             storeRoles(
               config.rolesKey,
-              decoded[
-                "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-              ]
+              JSON.stringify(
+                decoded[
+                  "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+                ]
+              )
             );
 
             storeAccessToken(config.accessTokenKey, data.data.access_token);
@@ -91,7 +93,12 @@ export const Login = ({ navigation }) => {
       <Text style={styles.headerTitle}>Hoşgeldiniz</Text>
       <Text style={styles.headerSubTitle}>Devam etmek için giriş yap.</Text>
       <Text>Email:</Text>
-      <TextInput value={email} onChangeText={setEmail} style={styles.input} />
+      <TextInput
+        value={email}
+        onChangeText={setEmail}
+        style={styles.input}
+        autoCapitalize="none"
+      />
       <Text>Şifre:</Text>
       <TextInput
         value={password}

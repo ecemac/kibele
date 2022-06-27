@@ -12,6 +12,7 @@ export const Navigation = () => {
   const { isLoggedIn, roles } = useContext(AuthContext);
 
   console.log("is login: ", isLoggedIn);
+
   console.log("roles: ", roles);
 
   return (

@@ -5,21 +5,42 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  Image,
   Platform,
 } from "react-native";
 import DateTimePicker, {
   DateTimePickerAndroid,
 } from "@react-native-community/datetimepicker";
+import * as ImagePicker from "expo-image-picker";
 import styles from "./styles";
 
 export const AddProduct = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [selectedImage, setSelectedImage] = useState(null);
   const [date, setDate] = useState(new Date());
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate;
     setDate(currentDate);
+  };
+
+  let openImagePickerAsync = async () => {
+    let permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      alert("Permission to access camera roll is required!");
+      return;
+    }
+
+    let pickerResult = await ImagePicker.launchImageLibraryAsync();
+
+    if (pickerResult.cancelled === true) {
+      return;
+    }
+
+    setSelectedImage({ localUri: pickerResult.uri });
   };
 
   const showDatePicker = () => {
@@ -44,6 +65,11 @@ export const AddProduct = () => {
           onChangeText={(text) => setDescription(text)}
         />
       </View>
+
+      <Image
+        source={{ uri: selectedImage?.localUri }}
+        style={{ width: 100, height: 100 }}
+      />
 
       {Platform.OS === "android" ? (
         <>
