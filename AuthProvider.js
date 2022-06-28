@@ -22,8 +22,7 @@ export const AuthProvider = ({ children }) => {
   const getRoles = async () => {
     try {
       const value = await AsyncStorage.getItem(config.rolesKey);
-      console.log("value: ", value);
-      setRoles(JSON.parse(roles));
+      setRoles(JSON.parse(value));
     } catch (e) {}
   };
 

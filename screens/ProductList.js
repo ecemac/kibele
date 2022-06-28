@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import {
   SafeAreaView,
   Text,
@@ -14,6 +14,19 @@ import styles from "./styles";
 export const ProductList = ({ navigation }) => {
   const { value, roles } = useContext(AuthContext);
   const { setIsLoggedIn } = useContext(AuthDispatchContext);
+
+  useEffect(() => {
+    fetch(`${config.baseUrl}/product`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${value}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((r) => {
+        console.log("res: ", r);
+      });
+  }, []);
 
   const removeUser = async () => {
     try {
@@ -61,10 +74,12 @@ export const ProductList = ({ navigation }) => {
     );
   };
 
+  console.log("roels: ", roles);
+
   return (
     <SafeAreaView style={styles.body}>
       <View style={styles.flexView}>
-        {roles.some((role) => role === "Seller") ? (
+        {roles?.length > 0 && roles.some((role) => role === "Seller") ? (
           <TouchableOpacity
             onPress={() => navigation.navigate("Ürün Ekle")}
             style={styles.button}
@@ -77,6 +92,7 @@ export const ProductList = ({ navigation }) => {
           </TouchableOpacity>
         )}
         <TouchableOpacity
+          style={styles.logoutButton}
           onPress={() => {
             removeUser().then((r) => {
               setIsLoggedIn(false);
@@ -84,7 +100,7 @@ export const ProductList = ({ navigation }) => {
             });
           }}
         >
-          <Text>Çıkış Yap</Text>
+          <Text style={styles.buttonText}>Çıkış Yap</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

@@ -1,46 +1,30 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import {
   SafeAreaView,
   View,
   Text,
   TextInput,
   TouchableOpacity,
-  Image,
   Platform,
 } from "react-native";
 import DateTimePicker, {
   DateTimePickerAndroid,
 } from "@react-native-community/datetimepicker";
-import * as ImagePicker from "expo-image-picker";
+import { AuthContext } from "../AuthProvider";
+import config from "../config";
 import styles from "./styles";
 
-export const AddProduct = () => {
+export const AddProduct = ({ navigation }) => {
+  const { value } = useContext(AuthContext);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [date, setDate] = useState(new Date());
+  const [availableAfter, setAvailableAfter] = useState(new Date());
+
+  const numberOfLines = 5;
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate;
-    setDate(currentDate);
-  };
-
-  let openImagePickerAsync = async () => {
-    let permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (permissionResult.granted === false) {
-      alert("Permission to access camera roll is required!");
-      return;
-    }
-
-    let pickerResult = await ImagePicker.launchImageLibraryAsync();
-
-    if (pickerResult.cancelled === true) {
-      return;
-    }
-
-    setSelectedImage({ localUri: pickerResult.uri });
+    setAvailableAfter(currentDate);
   };
 
   const showDatePicker = () => {
@@ -48,6 +32,30 @@ export const AddProduct = () => {
       value: date,
       onChange,
     });
+  };
+
+  const handleSubmit = () => {
+    let body = {
+      title,
+      description,
+      availableAfter,
+    };
+
+    fetch(`${config.baseUrl}/product`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${value}`,
+      },
+      body: JSON.stringify(body),
+    })
+      .then((response) => response.json())
+      .then((r) => {
+        console.log("r: ", r);
+        navigation.navigate("Ürün Görseli Ekle", {
+          id: r.data.id,
+        });
+      });
   };
 
   return (
@@ -60,23 +68,22 @@ export const AddProduct = () => {
           value={description}
           editable
           multiline
-          numberOfLines={7}
+          numberOfLines={Platform.OS === "ios" ? null : numberOfLines}
+          minHeight={
+            Platform.OS === "ios" && numberOfLines ? 20 * numberOfLines : null
+          }
           textAlignVertical="top"
           onChangeText={(text) => setDescription(text)}
         />
       </View>
-
-      <Image
-        source={{ uri: selectedImage?.localUri }}
-        style={{ width: 100, height: 100 }}
-      />
 
       {Platform.OS === "android" ? (
         <>
           <View style={styles.datePickerContainer}>
             <Text>Satışa Başlama Tarihi:</Text>
             <Text style={styles.selectedDate}>
-              {date.getDate()}/{date.getMonth() + 1}/{date.getFullYear()}
+              {availableAfter.getDate()}/{availableAfter.getMonth() + 1}/
+              {availableAfter.getFullYear()}
             </Text>
           </View>
           <View style={styles.datePickerButtonContainer}>
@@ -92,13 +99,13 @@ export const AddProduct = () => {
         <>
           <Text>Satışa Başlama Tarihi:</Text>
           <DateTimePicker
-            value={date}
+            value={availableAfter}
             onChange={onChange}
             style={styles.datePicker}
           />
         </>
       )}
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Ürün Ekle</Text>
       </TouchableOpacity>
     </SafeAreaView>

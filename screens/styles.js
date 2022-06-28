@@ -2,8 +2,8 @@ import { StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 20,
-    paddingVertical: 40,
+    marginHorizontal: 20,
+    marginVertical: 20,
   },
   headerTitle: {
     textAlign: "center",
@@ -36,10 +36,17 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     borderRadius: 3,
   },
+  logoutButton: {
+    padding: 10,
+    backgroundColor: "red",
+    marginVertical: 10,
+    borderRadius: 3,
+    marginLeft: 10,
+  },
   buttonText: {
     color: "white",
     textAlign: "center",
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "700",
   },
   datePickerButton: {
@@ -62,7 +69,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   descriptionInput: {
-    height: 120,
+    //minHeight: 120,
     marginVertical: 10,
     borderWidth: 1,
     borderColor: "#CACACA",

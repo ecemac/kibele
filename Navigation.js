@@ -6,6 +6,7 @@ import { Login } from "./screens/Login";
 import { SignUp } from "./screens/SignUp";
 import { ProductList } from "./screens/ProductList";
 import { AddProduct } from "./screens/AddProduct";
+import { AddProductImage } from "./screens/AddProductImage";
 
 export const Navigation = () => {
   const Stack = createNativeStackNavigator();
@@ -27,6 +28,10 @@ export const Navigation = () => {
           <>
             <Stack.Screen name="Ürün Listesi" component={ProductList} />
             <Stack.Screen name="Ürün Ekle" component={AddProduct} />
+            <Stack.Screen
+              name="Ürün Görseli Ekle"
+              component={AddProductImage}
+            />
           </>
         )}
       </Stack.Navigator>
