@@ -6,30 +6,30 @@ export const AuthContext = createContext(undefined);
 
 export const AuthDispatchContext = createContext(undefined);
 
+export const getLoginState = async () => {
+  try {
+    const loginValue = await AsyncStorage.getItem(config.accessTokenKey);
+    const rolesValue = await AsyncStorage.getItem(config.rolesKey);
+    let value = {
+      loginValue: loginValue ? loginValue : "",
+      rolesValue: rolesValue ? JSON.parse(rolesValue) : [],
+    };
+    return value;
+  } catch (e) {}
+};
+
 export const AuthProvider = ({ children }) => {
   const [value, setValue] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [roles, setRoles] = useState("");
+  const [roles, setRoles] = useState([]);
 
-  const getLoginState = async () => {
-    try {
-      const value = await AsyncStorage.getItem(config.accessTokenKey);
-      setValue(value);
-      setIsLoggedIn(value ? true : false);
-    } catch (e) {}
-  };
-
-  const getRoles = async () => {
-    try {
-      const value = await AsyncStorage.getItem(config.rolesKey);
-      setRoles(JSON.parse(value));
-    } catch (e) {}
-  };
-
-  useEffect(() => {
-    getLoginState();
-    getRoles();
-  }, []);
+  /* useEffect(() => {
+    getLoginState().then((r) => {
+      setValue(r.loginValue);
+      setIsLoggedIn(r.loginValue ? true : false);
+      setRoles(r.rolesValue);
+    });
+  }, []); */
 
   return (
     <AuthContext.Provider value={{ value, isLoggedIn, roles }}>

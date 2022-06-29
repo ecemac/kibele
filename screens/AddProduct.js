@@ -20,6 +20,8 @@ export const AddProduct = ({ navigation }) => {
   const [description, setDescription] = useState("");
   const [availableAfter, setAvailableAfter] = useState(new Date());
 
+  const [loading, setLoading] = useState(false);
+
   const numberOfLines = 5;
 
   const onChange = (event, selectedDate) => {
@@ -29,17 +31,20 @@ export const AddProduct = ({ navigation }) => {
 
   const showDatePicker = () => {
     DateTimePickerAndroid.open({
-      value: date,
+      value: availableAfter,
       onChange,
     });
   };
 
   const handleSubmit = () => {
+    setLoading(true);
     let body = {
       title,
       description,
       availableAfter,
     };
+
+    console.log("body: ", body);
 
     fetch(`${config.baseUrl}/product`, {
       method: "POST",
@@ -51,7 +56,7 @@ export const AddProduct = ({ navigation }) => {
     })
       .then((response) => response.json())
       .then((r) => {
-        console.log("r: ", r);
+        setLoading(false);
         navigation.navigate("Ürün Görseli Ekle", {
           id: r.data.id,
         });
@@ -105,7 +110,10 @@ export const AddProduct = ({ navigation }) => {
           />
         </>
       )}
-      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+      <TouchableOpacity
+        style={!loading ? styles.button : styles.loadingButton}
+        onPress={handleSubmit}
+      >
         <Text style={styles.buttonText}>Ürün Ekle</Text>
       </TouchableOpacity>
     </SafeAreaView>

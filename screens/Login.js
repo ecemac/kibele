@@ -7,7 +7,6 @@ import {
   Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import jwt_decode from "jwt-decode";
 import { AuthDispatchContext } from "../AuthProvider";
 import styles from "./styles";
 import config from "../config";
@@ -16,7 +15,7 @@ export const Login = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const { setIsLoggedIn, setRoles } = useContext(AuthDispatchContext);
+  const { setIsLoggedIn, setRoles, setValue } = useContext(AuthDispatchContext);
 
   const storeRoles = async (key, value) => {
     try {
@@ -30,6 +29,7 @@ export const Login = ({ navigation }) => {
   const storeAccessToken = async (key, value) => {
     try {
       await AsyncStorage.setItem(key, value);
+      setValue(value);
       Alert.alert("Giriş Başarılı!", "Ürün listesine yönlendiriliyorsunuz.", [
         {
           text: "Tamam",
@@ -57,24 +57,21 @@ export const Login = ({ navigation }) => {
       })
         .then((response) => response.json())
         .then((data) => {
-          console.log("r", data);
           if (data.status === 401) {
             Alert.alert("Hata!", "Girdiğiniz bilgileri kontrol edin", [
               { text: "Tamam", onPress: () => console.log("OK Pressed") },
             ]);
           } else {
-            let decoded = jwt_decode(data.data.access_token);
-
-            storeRoles(
-              config.rolesKey,
-              JSON.stringify(
-                decoded[
-                  "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-                ]
-              )
+            storeRoles(config.rolesKey, JSON.stringify(data.data.roles)).then(
+              () => {
+                storeAccessToken(
+                  config.accessTokenKey,
+                  data.data.access_token
+                ).then(() => {
+                  return;
+                });
+              }
             );
-
-            storeAccessToken(config.accessTokenKey, data.data.access_token);
           }
         })
         .catch((error) => {

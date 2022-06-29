@@ -1,7 +1,11 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { AuthContext } from "./AuthProvider";
+import {
+  AuthContext,
+  AuthDispatchContext,
+  getLoginState,
+} from "./AuthProvider";
 import { Login } from "./screens/Login";
 import { SignUp } from "./screens/SignUp";
 import { ProductList } from "./screens/ProductList";
@@ -10,11 +14,22 @@ import { AddProductImage } from "./screens/AddProductImage";
 
 export const Navigation = () => {
   const Stack = createNativeStackNavigator();
-  const { isLoggedIn, roles } = useContext(AuthContext);
+  const { isLoggedIn, value, roles } = useContext(AuthContext);
+  const { setIsLoggedIn, setRoles, setValue } = useContext(AuthDispatchContext);
 
-  console.log("is login: ", isLoggedIn);
-
-  console.log("roles: ", roles);
+  useEffect(() => {
+    if (!value || roles.length === 0) {
+      getLoginState()
+        .then((r) => {
+          setValue(r.loginValue);
+          setIsLoggedIn(r.loginValue ? true : false);
+          setRoles(r.rolesValue);
+        })
+        .catch((e) => {
+          console.log(error);
+        });
+    }
+  }, []);
 
   return (
     <NavigationContainer>

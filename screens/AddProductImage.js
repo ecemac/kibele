@@ -16,6 +16,7 @@ export const AddProductImage = ({ route, navigation }) => {
   const { id } = route.params;
   const { value } = useContext(AuthContext);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   let openImagePickerAsync = async () => {
     let permissionResult =
@@ -41,6 +42,7 @@ export const AddProductImage = ({ route, navigation }) => {
   };
 
   const handleSubmit = () => {
+    setLoading(true);
     let body = {
       productId: id,
       order: 0,
@@ -57,7 +59,7 @@ export const AddProductImage = ({ route, navigation }) => {
     })
       .then((response) => response.json())
       .then((r) => {
-        console.log("success");
+        setLoading(true);
         Alert.alert(
           "Görsel Yüklendi!",
           "Ürün listeleme ekranına gitmek için devam edin",
@@ -77,14 +79,21 @@ export const AddProductImage = ({ route, navigation }) => {
         <Text style={styles.buttonText}>Ürün görseli ekle</Text>
       </TouchableOpacity>
       {selectedImage && (
-        <Image
-          source={{ uri: selectedImage.uri }}
-          style={{ width: 200, height: 200 }}
-        />
+        <>
+          <View style={{ alignItems: "center" }}>
+            <Image
+              source={{ uri: selectedImage.uri }}
+              style={{ width: 200, height: 200 }}
+            />
+          </View>
+          <TouchableOpacity
+            style={!loading ? styles.button : styles.loadingButton}
+            onPress={handleSubmit}
+          >
+            <Text style={styles.buttonText}>Ürün Eklemeyi Tamamla</Text>
+          </TouchableOpacity>
+        </>
       )}
-      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Ürün Eklemeyi Tamamla</Text>
-      </TouchableOpacity>
     </SafeAreaView>
   );
 };

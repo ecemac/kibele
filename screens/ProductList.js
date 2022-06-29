@@ -2,9 +2,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState, useContext, useEffect } from "react";
 import {
   SafeAreaView,
+  ScrollView,
   Text,
   TouchableOpacity,
   View,
+  Image,
   Alert,
 } from "react-native";
 import { AuthContext, AuthDispatchContext } from "../AuthProvider";
@@ -13,20 +15,29 @@ import styles from "./styles";
 
 export const ProductList = ({ navigation }) => {
   const { value, roles } = useContext(AuthContext);
-  const { setIsLoggedIn } = useContext(AuthDispatchContext);
+  const { setIsLoggedIn, setRoles, setValue } = useContext(AuthDispatchContext);
+
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetch(`${config.baseUrl}/product`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${value}`,
-      },
-    })
-      .then((response) => response.json())
-      .then((r) => {
-        console.log("res: ", r);
-      });
-  }, []);
+    const unsubscribe = navigation.addListener("focus", () => {
+      setLoading(true);
+      fetch(`${config.baseUrl}/product`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${value}`,
+        },
+      })
+        .then((response) => response.json())
+        .then((r) => {
+          setProducts(r.data);
+          setLoading(false);
+        });
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   const removeUser = async () => {
     try {
@@ -48,7 +59,6 @@ export const ProductList = ({ navigation }) => {
     })
       .then((response) => response.json())
       .then((r) => {
-        console.log("r: ", r);
         removeUser().then((r) => {
           setIsLoggedIn(false);
           navigation.navigate("Giriş Yap");
@@ -74,35 +84,102 @@ export const ProductList = ({ navigation }) => {
     );
   };
 
-  console.log("roels: ", roles);
+  const handleOrder = (id) => {
+    console.log("url: ", `${config.baseUrl}/product/order/${id}`);
+    fetch(`${config.baseUrl}/product/order/${id}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${value}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((r) => {
+        Alert.alert("Sipariş Verildi!", "Ürünlere geri dönebilirsiniz", [
+          {
+            text: "Devam Et",
+            onPress: () => {},
+          },
+        ]);
+      });
+  };
+
+  let parsedRoles = typeof roles === "string" ? JSON.parse(roles) : roles;
 
   return (
     <SafeAreaView style={styles.body}>
-      <View style={styles.flexView}>
-        {roles?.length > 0 && roles.some((role) => role === "Seller") ? (
-          <TouchableOpacity
-            onPress={() => navigation.navigate("Ürün Ekle")}
-            style={styles.button}
-          >
-            <Text style={styles.buttonText}>Ürün Ekle</Text>
-          </TouchableOpacity>
+      <ScrollView>
+        {!loading ? (
+          <View>
+            <View style={styles.flexView}>
+              {parsedRoles?.length > 0 &&
+              parsedRoles?.some((role) => role === "Seller") ? (
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("Ürün Ekle")}
+                  style={styles.button}
+                >
+                  <Text style={styles.buttonText}>Ürün Ekle</Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity onPress={handleSeller} style={styles.button}>
+                  <Text style={styles.buttonText}>Satıcı Ol</Text>
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity
+                style={styles.logoutButton}
+                onPress={() => {
+                  removeUser().then((r) => {
+                    setIsLoggedIn(false);
+                    setValue("");
+                    setRoles([]);
+                    navigation.navigate("Giriş Yap");
+                  });
+                }}
+              >
+                <Text style={styles.buttonText}>Çıkış Yap</Text>
+              </TouchableOpacity>
+            </View>
+            <View>
+              {products.length > 0 &&
+                products.map((p) => (
+                  <View key={p.id} style={styles.productContainer}>
+                    <View style={styles.infoContainer}>
+                      <Image
+                        style={{ width: 100, height: 100 }}
+                        source={{
+                          uri: `data:img/jpg;base64,${p?.pictures[0].content}`,
+                        }}
+                      />
+                      <View style={styles.productTextContainer}>
+                        <Text style={styles.productTitle}>{p.title}</Text>
+                        <Text style={styles.productDescription}>
+                          {p.description}
+                        </Text>
+                        <Text style={styles.availableDate}>
+                          Teslimat tarihi: {""}
+                          {new Date(p.availableAfter).getDate()}/
+                          {new Date(p.availableAfter).getMonth() + 1}/
+                          {new Date(p.availableAfter).getFullYear()}
+                        </Text>
+                      </View>
+                    </View>
+                    <TouchableOpacity
+                      style={styles.button}
+                      onPress={() => handleOrder(p?.id)}
+                    >
+                      <Text style={styles.buttonText}>Sipariş Ver</Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              {products.length === 0 && (
+                <Text style={styles.centeredText}>Ürün bulunamadı.</Text>
+              )}
+            </View>
+          </View>
         ) : (
-          <TouchableOpacity onPress={handleSeller} style={styles.button}>
-            <Text style={styles.buttonText}>Satıcı Ol</Text>
-          </TouchableOpacity>
+          <Text style={styles.centeredText}>Yükleniyor...</Text>
         )}
-        <TouchableOpacity
-          style={styles.logoutButton}
-          onPress={() => {
-            removeUser().then((r) => {
-              setIsLoggedIn(false);
-              navigation.navigate("Giriş Yap");
-            });
-          }}
-        >
-          <Text style={styles.buttonText}>Çıkış Yap</Text>
-        </TouchableOpacity>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };

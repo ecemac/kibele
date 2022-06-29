@@ -5,6 +5,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginVertical: 20,
   },
+  scroll: {
+    flex: 1,
+  },
   headerTitle: {
     textAlign: "center",
     fontSize: 21,
@@ -33,6 +36,14 @@ const styles = StyleSheet.create({
   button: {
     padding: 10,
     backgroundColor: "#10ABB4",
+    marginVertical: 10,
+    borderRadius: 3,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  loadingButton: {
+    padding: 10,
+    backgroundColor: "#CACACA",
     marginVertical: 10,
     borderRadius: 3,
   },
@@ -80,7 +91,30 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   body: {
-    paddingHorizontal: 15,
+    marginHorizontal: 15,
+    marginVertical: 10,
+  },
+  productContainer: {
+    justifyContent: "space-between",
+    marginVertical: 5,
+  },
+  infoContainer: {
+    flexDirection: "row",
+    alignContent: "center",
+  },
+  productTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+  },
+  productDescription: {
+    fontSize: 14,
+  },
+  availableDate: {
+    fontSize: 12,
+  },
+  productTextContainer: {
+    marginHorizontal: 10,
+    justifyContent: "space-around",
   },
 });
 
