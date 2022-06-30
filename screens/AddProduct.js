@@ -44,8 +44,6 @@ export const AddProduct = ({ navigation }) => {
       availableAfter,
     };
 
-    console.log("body: ", body);
-
     fetch(`${config.baseUrl}/product`, {
       method: "POST",
       headers: {

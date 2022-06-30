@@ -85,7 +85,6 @@ export const ProductList = ({ navigation }) => {
   };
 
   const handleOrder = (id) => {
-    console.log("url: ", `${config.baseUrl}/product/order/${id}`);
     fetch(`${config.baseUrl}/product/order/${id}`, {
       method: "POST",
       headers: {
